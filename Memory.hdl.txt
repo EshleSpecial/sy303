@@ -1,0 +1,52 @@
+// This file is part of www.nand2tetris.org
+// and the book "The Elements of Computing Systems"
+// by Nisan and Schocken, MIT Press.
+// File name: projects/05/Memory.hdl
+
+//MIDN McKenzie Eshleman
+//221938
+//SY303 3321
+//The memory chip is composed of three separate chips, including the RAM16K,
+// Screen, and Keyboard. The chip puts these three chip parts into a single 
+//address space. Conceptually, the memory records or recalls values using 
+//the first 16K words of the memory. It also writes or reads the screen 
+//using the next 8K words of memory. Lastly is it reads which key is 
+//currently pressed and uses the next word of the memory. 
+
+/**
+ * The complete address space of the Hack computer's memory,
+ * including RAM and memory-mapped I/O. 
+ * The chip facilitates read and write operations, as follows:
+ *     Read:  out(t) = Memory[address(t)](t)
+ *     Write: if load(t-1) then Memory[address(t-1)](t) = in(t-1)
+ * In words: the chip always outputs the value stored at the memory 
+ * location specified by address. If load==1, the in value is loaded 
+ * into the memory location specified by address. This value becomes 
+ * available through the out output from the next time step onward.
+ * Address space rules:
+ * Only the upper 16K+8K+1 words of the Memory chip are used. 
+ * Access to address>0x6000 is invalid. Access to any address in 
+ * the range 0x4000-0x5FFF results in accessing the screen memory 
+ * map. Access to address 0x6000 results in accessing the keyboard 
+ * memory map. The behavior in these addresses is described in the 
+ * Screen and Keyboard chip specifications given in the book.
+ */
+
+CHIP Memory {
+    IN in[16], load, address[15];
+    OUT out[16];
+
+    PARTS:
+    // Put your code here:
+	DMux(in=load, sel=address[14], a=loadram, b=loadscreen); //takes a single inputs and loads them to
+//to a three outputs, this allows us to send the variables for a appropriate register.
+	
+	RAM16K(in=in, load=loadram, address = address[0..13], out=ramout); //since the address is
+//15 bits we use the fist 14 bits for the RAM and the last bit is for kdb
+	Screen(in=in, load=loadscreen, address=address[0..12], out=scrout); //the screen uses 13 bits
+//of addresses 
+
+    	Keyboard(out=kbout); //last bit is the kbd address, only uses a single bit
+    	Mux4Way16(a=ramout, b=ramout, c=scrout, d=kbout, sel=address[13..14], out=out); //gives the outputs for four ways
+//outputing two Ram, the screen output, and the keyboard output
+}

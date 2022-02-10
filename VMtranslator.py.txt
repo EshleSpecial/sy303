@@ -1,0 +1,232 @@
+#!/usr/bin/env python3
+
+'''
+Name: MIDN McKenzie Eshleman
+Course: SY303
+Section: 3321
+Description: <Describe the program here>
+Usage:
+  $ ./VMtranslator.py <program.vm>
+
+Tips:
+# See Python Software Foundation, Python 3 Documentation (URL: https://docs.python.org/3/ ):
+# - open()
+# - str.strip()
+# - str.format()
+# - string concatenation
+# You may want to consider incorporating some of these functions / data structures
+'''
+import sys
+#Global variable
+uniqueNum = 0
+
+def main():
+	'''
+	Description: main Function (main control flow)
+	Arguments:
+	  ...
+	'''
+	# Read filename from command line argument
+	filename = sys.argv[1]
+	# Open the input .vm file with that filename
+	fin = open(filename, 'r')
+	# Create and open the output .asm file with the same basename
+	basename = filename.split('.')[0]	
+	fout = open(basename + '.asm' ,'w')	
+	# Read each VM instruction in the input file
+	# For each instruction:
+	for instruction in fin.readlines(): #reads each line of instruction
+		instruction = instruction.strip()
+		if not instruction: #if not an instruction then we ignore
+			continue
+		if "//" in instruction: #if line is a comment we ignore
+			continue
+		else:
+			instruction = instruction.split("//")[0].strip()
+		# Parse the instruction into its type (eg. Arithmetic, Push, Pop) and arguments and return them in a tuple
+		instruction_type, instruction_arguments = parser(instruction)
+		# Generate the corresponding Hack Assembly code of that parsed instruction as a string
+		assembly_code = code(instruction_type, instruction_arguments)
+		# Write the assembly string(s) to the output file
+		fout.write(assembly_code) #assembly_code + '\n'
+	# Be nice and close the files when you are done!
+	for f in (fin,fout):
+		f.close()
+
+def parser(inst):
+	'''
+	Description: Checks to see if the line of instruction is either 
+	Memory Access or Arithmetic code. Then it is sent through the code 
+function.
+	Arguments: inst
+	  ...
+	Returns:instType and instList
+	  ...
+	'''
+	# Your code here
+	instList = inst.split() #splits the lines of code
+	if instList[0] in ('push', 'pop'): #if there is a push or pop then the line is memory access
+		instType = "MemoryAccess"
+	else: #if not push or pop then the line is arithmetic
+		instType = "Arithmetic"
+	# Return a tuple containing the instruction type and the arguments (arg1, arg2)
+	return(instType, instList) #returing the instType and inst List
+
+
+def code(instType, instArgs):
+	'''
+	Description: Takes the two different kinds of instruction
+	and sends them to their respective generate functions.
+	Arguments: instType, instArgs
+	  ...
+	Returns: assembly
+	  ...
+	'''
+	# Determine the class of code that must be generated based on the type, then create it in an appropriate function
+	if instType == "Arithmetic":
+		# Need to generate Hack Assembly instructions to implement an Arithmetic or Logical VM instruction (suggested arguments included)
+		[command] = instArgs		
+		assembly = generateArithmetic(command)
+	else:
+		# Need to generate Hack Assembly instructions to implement a Memory Access VM instruction (push, pop) (suggested arguments included)
+		command, segment, index = instArgs		
+		assembly = generateMemoryAccess(command, segment, index)
+	...
+	# Return the line(s) of Hack Assembly code which accomplish the requested VM instruction
+	return assembly
+
+def generateArithmetic(command):
+	'''
+	Description: Takes a single command and corresponds
+	the command to that specific hack machine code.
+	Arguments: command
+	  ...
+	Returns: acode
+	  ...
+	'''
+	# Your code here
+	global uniqueNum #declaring the unique number
+	acode = '\n'
+	acode += "@SP\t//Performing Arithmetic\n"
+	acode += "A=M-1\n"
+	if (command == "not"):
+		acode += "M=!M\t//not\n" #Not Hack machine code
+	elif (command == "neg"):
+		acode += "M=-M\t//negation\n" #Neg hack machine code
+	else: #Must be a binary operation
+		acode += "D=M\n"
+		acode += "A=A-1\n"
+		if (command == "add"):
+			acode += "M=D+M\t// add\n" #machine code for adding
+		elif (command == "sub"):
+			acode += "M=M-D\t// sub\n" #machine code for subtracting
+		elif (command == "and"):
+			acode += "M=D&M\t// and\n" #machine code for and
+		elif (command == "or"):
+			acode += "M=D|M\t// or\n" #machine code for or
+		else: #Jump hack machine codes
+			acode += "D=M-D\n"
+			acode += "@CMP" + str(uniqueNum) + "\n"
+			if (command == "eq"):
+				acode += "D;JEQ\t// equality\n" #hack code for the Jump equal to
+			if (command == "gt"):
+				acode += "D;JGT\t// greater than\n" #hack code for the Jump greater than
+			if (command == "lt"):
+				acode += "D;JLT\t// less than\n" #hack code for the Jump less than 
+			acode += "D=0\n"
+			acode += "@FINCMP" + str(uniqueNum) + "\n"
+			acode += "0;JMP\n"
+			acode += "(CMP" + str(uniqueNum) + ")\n"
+			acode += "D=-1\n"
+			acode += "(FINCMP" + str(uniqueNum) + ")\n"
+			acode += "@SP\n"
+			acode += "A=M-1\n"
+			acode += "A=A-1\n"
+			acode += "M=D\n"
+			uniqueNum += 1
+		acode += "@SP\n" #pointer location
+		acode += "M=M-1\n"
+	# Return a representation of Hack Assembly instruction(s) which implement the passed in command
+	return(acode)
+
+def generateMemoryAccess(command, segment, index):
+	'''
+	Description: Broken down by two portions
+	
+	Push:push the data onto the stack and moves the pointer down
+	
+	Pop:Pop the latest item on the stack and moves the pointer up
+	Arguments: command, segment, index
+	  ...
+	Returns: mcode
+	  ...
+	'''
+	# Your code here
+	mcode = "\n"
+	mcode += "// " + command + " " + segment + " " + index + "\n" #Makes mcode the three inputs
+	argDict = {"local" : "LCL", "argument":"ARG", "this": "THIS", "that": "THAT", "static":"16"}
+	#creates a argument dictionary to refernece
+
+	#push command
+	if (command == "push"):
+		if(segment == "constant"): #checks if the code is a constant
+			mcode += "@"+index+"\n"
+			mcode += "D=A\n"#makes constant = to D
+		if(segment in argDict): #checks to see if the code is in the arg dict 
+			mcode += "@"+index+"\n"
+			mcode += "D=A\n"#makes index = to D
+			mcode += "@"+argDict[segment]+"\n"
+			mcode += "A=D+M\n"
+			mcode += "D=M\n"#sets the memory address of the segment = to D
+		if(segment == "temp"): #checks if code it a temp
+			mcode += "@"+str(int(index)+5)+"\n"
+			mcode += "D=M\n" #makes the memory of the temp + 5 equal to D
+		if(segment == "pointer"): #checks to see if the code is a pointer
+			mcode += "@"+str(int(index) +3) +"\n"
+			mcode += "D=M\n" #makes the pointer + 3 = to D
+		if(segment == "static"):
+			mcode += "@static_" + index + "\nD=A\n" + "D=M\n" + "@SP\n" + "A=M\n" + "M=D\n" + "@SP\n" + "M=M+1\n"
+			return mcode
+
+		#ALWAYS OCCURS DURING PUSH		
+		mcode += "@SP\n"
+		mcode += "M=M+1\n"
+		mcode += "A=M-1\n"
+		mcode += "M=D\n"
+	#POP Command
+	else: #must be a pop command
+		if(segment in argDict):#code in the arg Dict
+			mcode += "@"+index+"\n"
+			mcode += "D=A\n"#sets D equal to the index
+			mcode += "@" + argDict[segment] + "\n"
+			mcode += "D=D+M\n" #D is stored as the segment in arg Dict
+			mcode += "@R13\n" #D is stored in RAM[13]
+			mcode += "M=D\n" #Memory is stored as D
+		mcode += "@SP\n" #Pointer
+		mcode += "AM=M-1\n" #Incrementor
+		mcode += "D=M\n"
+		if(segment in argDict): #arg Dict portion
+			mcode += "@R13\n"
+			mcode += "A=M\n" #memory of RAM[13]
+		if(segment == "temp"): #if the code is a temp
+			mcode += "@"+str(int(index)+5)+"\n"
+		if(segment == "pointer"): #if the code is a pointer
+			mcode += "@"+str(int(index)+3)+"\n"
+		mcode += "M=D\n"
+		if(segment == "static" ): 
+			mcode += "@SP\n" + "AM=M-1\n" + "D=M\n" + "@static_" + index + "\nM=D\n" 
+			return mcode
+		
+
+# Return a representation of Hack Assembly instruction(s) which implement the passed in command
+	return mcode
+
+######################################################################################################
+# Define any additional helper functions here (include function descriptions)
+######################################################################################################
+
+
+# Include code below to ONLY call the main function when the program is run from the command line; i.e. a standalone program
+if __name__ == "__main__": #calls the main functions
+	main()
+

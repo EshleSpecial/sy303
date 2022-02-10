@@ -1,0 +1,25 @@
+// This file is part of www.nand2tetris.org
+// and the book "The Elements of Computing Systems"
+// by Nisan and Schocken, MIT Press.
+// File name: projects/02/Inc16.hdl
+
+//MIDN McKenzie Eshleman
+//221938
+//SY303 3321
+//The 16 bit incrementer increase the value of the input
+
+/**
+ * 16-bit incrementer:
+ * out = in + 1 (arithmetic addition)
+ */
+
+CHIP Inc16 {
+    IN in[16];
+    OUT out[16];
+
+    PARTS:
+   // Put you code here:
+   //[0000000000000001] == 1
+   Add16(a=in, b[0]=true, out=out); // adds the 16 bits each time using the 
+//add16 gate, each time it increases by 1.
+}

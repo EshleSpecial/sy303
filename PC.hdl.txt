@@ -1,0 +1,39 @@
+// This file is part of www.nand2tetris.org
+// and the book "The Elements of Computing Systems"
+// by Nisan and Schocken, MIT Press.
+// File name: projects/03/a/PC.hdl
+
+//MIDN McKenzie Eshleman
+//221938
+//SY301 3321
+// The PC chip is a program counter and takes 3 inputs 
+
+/**
+ * A 16-bit counter with load and reset control bits.
+ * if      (reset[t] == 1) out[t+1] = 0
+ * else if (load[t] == 1)  out[t+1] = in[t]
+ * else if (inc[t] == 1)   out[t+1] = out[t] + 1  (integer addition)
+ * else                    out[t+1] = out[t]
+ */
+
+CHIP PC {
+    IN in[16],load,inc,reset;
+    OUT out[16];
+
+    PARTS:
+    // Put your code here:
+
+//Increment the output of the register
+    Inc16(in=feedback, out=pc);
+  
+//figures out what goes to the register, either the
+//program counter, the incremented pc, the input, or zeros
+//on a reset.
+
+    Mux16(a=feedback, b=pc, sel=inc, out=w0);
+    Mux16(a=w0, b=in, sel=load, out=w1);
+//Mux for counter
+    Mux16(a=w1, b=false, sel=reset, out=count);
+    
+    Register(in=count, load=true, out=out, out=feedback);
+}

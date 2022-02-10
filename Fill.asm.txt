@@ -1,0 +1,94 @@
+// This file is part of www.nand2tetris.org
+// and the book "The Elements of Computing Systems"
+// by Nisan and Schocken, MIT Press.
+// File name: projects/04/Fill.asm
+
+//MIDN McKenzie Eshleman
+//221938
+//SY301 3321
+//The fill hack file is an infinite loop, that uses keyboard
+//inputs. When any key is pressed then the screen fills with black.
+//When no key is pressed then it remains clear. 
+
+
+// Runs an infinite loop that listens to the keyboard input.
+// When a key is pressed (any key), the program blackens the screen,
+// i.e. writes "black" in every pixel;
+// the screen should remain fully black as long as the key is pressed. 
+// When no key is pressed, the program clears the screen, i.e. writes
+// "white" in every pixel;
+// the screen should remain fully clear as long as no key is pressed.
+
+// Put your code here.
+
+	@8192 //half of SCREEN
+	D=A //D = 8192
+	@wrd //A = wrd
+	M=D //M = Ram[8192] to wrd
+
+	@i //loads the address i into A
+	M=0 //sets i equal to Ram[0]
+
+(LOOP)
+// Get the color based on the keyboard.
+	@KBD //predefined pointer to RAM[24576]
+	D=M //sets the memory address of the pointer equal to D
+	@color //sets the color based on the keyboard press
+	M=0 //if no key is pressed then 0 appears
+	@SKIP //loads the address of SKIP into A
+	D;JEQ //If there is no keyboard presses then Jump to skip
+
+	@color //sets the color based on keyboard presses
+	M=-1 //-1 is 1111111111111111 in binary
+(SKIP)
+
+// Get the memory address for the screen word.
+	@SCREEN //Set the A register to point to the memory
+//word that is mapped to the 16-left most pixels on the top row of the screen.
+	D=A //sets D to the of SCREEN 
+	@i //loads the address of i into A
+	D=D+M //updates the screen to be screen + i
+	@w //loads the address of the screen word into A
+	M=D //M = RAM[w], makes w the memory address of A
+
+// Increment i, ensuring it's in range.
+	@i //loads the address of i into the A register
+	M=M+1 //increments by 1
+	D=M // sets value of the new value of the incrementor into D
+	@wrd //loads the address of the word into A
+	D=D-M //decreases the incrementor by the word on screen
+	@VALID //checks to see if key press is valid
+	D;JNE //if keyword works then we jump if it doesnt equl zero
+
+	@i //loads the address of i into A
+	M=0 //sets the memory address equal to zero
+(VALID)
+
+// Jump to the white or black code block.
+	@color //sets the color based on keyboard presses
+	D=M //sets the memory address of color to D
+	@WHITE //if D = 0 then we jump to the White iterator
+	D;JEQ
+
+	@BLACK //if D= 1 then we jump to the black iterator
+	D;JNE
+
+(BLACK)
+
+	@w //loads the address of the screen word into A
+	D=M //makes d the pointer address of word
+	A=D 
+	M=-1 //fills the screen with black
+	@LOOP //loops through until zero
+	0;JMP
+
+
+(WHITE)
+	@w //loads the address of the screen word into A
+	D=M //makes d the pointer address of word
+	A=D
+	M=0 //fills the screen with white
+	@LOOP //loops through until zero
+	0;JMP
+
+

@@ -1,0 +1,51 @@
+// This file is part of www.nand2tetris.org
+// and the book "The Elements of Computing Systems"
+// by Nisan and Schocken, MIT Press.
+// File name: projects/04/Mult.asm
+
+//MIDN McKenzie Eshleman
+//221938
+//SY303 3321
+//The Mult assembly takes in two inputs that are stored as R0 amnd R1, it 
+//computes the product of R0*R1 and stores it as R2.
+
+// Multiplies R0 and R1 and stores the result in R2.
+// (R0, R1, R2 refer to RAM[0], RAM[1], and RAM[2], respectively.)
+
+// Put your code here.
+	@R2 	//loads the address of R2 into the A register
+	M=0 	//sets the value of R2 to zero
+
+	@R0 	//loads the address of R0 into the A register
+	D=M 	//makes D equal to the value of R0
+	@END	//loads the address of END into the A register
+	D;JEQ	//If R0 is zero then jumps to the end, zero multiplied is always 0
+
+	@R1 	//loads the address of R1 into the A register
+	D=M 	//Makes D equal to the value of R1
+	@END 	//loads the address of END into the A register
+	D;JEQ 	//If R1 is zero then jumps to the end, zero multiplied is always 0
+
+	@R0	//loads the address of R0 into the A register
+	D=M	// Makes D equal to the value of R0
+	@counter//loads the address of our counter into the A register
+	M=D	//M = counter, giving the Ram address for the variable count
+
+
+(LOOP)
+	@R1	//gets our second variable
+	D=M	//D is stored as the second variable
+
+	@R2	//Final answer is stored here
+	M=D+M	//adds Ram[1] to the total(R[2]), Ram[0] times
+
+	@counter //retrieves the first number
+	M=M-1	//subtracts counter - 1
+	
+	D=M	//sets R1 equal to M
+	@LOOP	//Loop address
+	D;JGT	//Jumps back through the loop
+
+(END)
+	@END
+	0;JMP	//stop
