@@ -1,0 +1,33 @@
+// This file is part of www.nand2tetris.org
+// and the book "The Elements of Computing Systems"
+// by Nisan and Schocken, MIT Press.
+// File name: projects/01/DMux8Way.hdl
+
+//MIDN McKenzie Eshleman
+//221938
+//SY303 3321
+//The DMux8Way chip channels a single bit input into one of the 8 possible
+// outputs.
+
+/**
+ * 8-way demultiplexor:
+ * {a, b, c, d, e, f, g, h} = {in, 0, 0, 0, 0, 0, 0, 0} if sel == 000
+ *                            {0, in, 0, 0, 0, 0, 0, 0} if sel == 001
+ *                            etc.
+ *                            {0, 0, 0, 0, 0, 0, 0, in} if sel == 111
+ */
+
+CHIP DMux8Way {
+    IN in, sel[3];
+    OUT a, b, c, d, e, f, g, h;
+
+    PARTS:
+    // Put your code here:
+//Similar to Mux and DMux4Way
+//loooking at the sel portion
+   DMux4Way(in=in, sel=sel[1..2], a=x1, b=x2, c=x3, d=x4);
+   DMux(in=x1, sel=sel[0], a=a, b=b); //expecting one DMux will contain the output
+   DMux(in=x2, sel=sel[0], a=c, b=d);
+   DMux(in=x3, sel=sel[0], a=e, b=f);
+   DMux(in=x4, sel=sel[0], a=g, b=h);
+}

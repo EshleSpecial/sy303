@@ -1,0 +1,40 @@
+// This file is part of www.nand2tetris.org
+// and the book "The Elements of Computing Systems"
+// by Nisan and Schocken, MIT Press.
+// File name: projects/01/Mux4Way16.hdl
+
+//Midn McKenzie Eshleman
+//221938
+//SY303 3221
+// The Mux4Way 16 chip selects one of the 4 16 bits input buses and
+//outputs it to a single 16 bit output bus.
+
+/**
+ * 4-way 16-bit multiplexor:
+ * out = a if sel == 00
+ *       b if sel == 01
+ *       c if sel == 10
+ *       d if sel == 11
+ */
+
+CHIP Mux4Way16 {
+    IN a[16], b[16], c[16], d[16], sel[2];
+    OUT out[16];
+
+    PARTS:
+    // Put your code here:
+ // a    b        c      d
+//   \   /        \     /
+//  Mux16ab       Mux16cd
+//      \            /
+//       Mux16 output
+ 
+    Mux16(a=a, b=b, sel=sel[0], out=ab); //inputs a and b runs as a Mux16
+    Mux16(a=c, b=d, sel=sel[0], out=cd); //input c and d runs as their own mux16
+    Mux16(a=ab, b=cd, sel=sel[1], out=out); //combines both Mux16ab and Mux16cd together for the final output
+    
+    
+    
+
+    
+}

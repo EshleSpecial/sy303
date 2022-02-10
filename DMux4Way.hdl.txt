@@ -1,0 +1,40 @@
+// This file is part of www.nand2tetris.org
+// and the book "The Elements of Computing Systems"
+// by Nisan and Schocken, MIT Press.
+// File name: projects/01/DMux4Way.hdl
+
+//Midn McKenzie Eshleman
+//221938
+//SY303 3221
+//The DMux4Way chip channels a single bit input into one of the 4 possible
+// outputs.
+
+/**
+ * 4-way demultiplexor:
+ * {a, b, c, d} = {in, 0, 0, 0} if sel == 00
+ *                {0, in, 0, 0} if sel == 01
+ *                {0, 0, in, 0} if sel == 10
+ *                {0, 0, 0, in} if sel == 11
+ */
+
+CHIP DMux4Way {
+    IN in, sel[2];
+    OUT a, b, c, d;
+
+    PARTS:
+    // Put your code here:
+//          Dmux Input
+//           /      \
+//     DMuxab      DMuxcd
+//     /   \       /   \
+//    a     b     c     d
+//This function works the opposite of the Mux4Way chip
+//We start out with the DMux input and then go to the 
+//the DMux of a&b and also c&d, then we go down to the inputs
+//of a,b,c,d
+    DMux(in=in, sel=sel[1], a=ab, b=cd); //groups together ab and cd with
+//the intial DMux chip
+    DMux(in=ab, sel=sel[0], a=a, b=b); //DMux of inputs a and b
+    DMux(in=cd, sel=sel[0], a=c, b=d); //DMux of inputs c and d
+
+}

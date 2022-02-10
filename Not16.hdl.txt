@@ -1,0 +1,43 @@
+// This file is part of www.nand2tetris.org
+// and the book "The Elements of Computing Systems"
+// by Nisan and Schocken, MIT Press.
+// File name: projects/01/Not16.hdl
+
+//Midn McKenzie Eshleman
+//221938
+//SY303 3321
+//The Not16 Chip is a 16 bit Not gate that applies boolean operations
+//to every bit in the input bus
+
+/**
+ * 16-bit Not:
+ * for i=0..15: out[i] = not in[i]
+ */
+
+CHIP Not16 {
+    IN in[16];
+    OUT out[16];
+
+    PARTS:
+    // Put your code here:
+//Creating an array for the Not chip to function for 16 Bits
+//From the Nand truth table the value of the input is the
+//Two bottom rows of the truth table
+
+    Not(in=in[0], out=out[0]); //Not bit array 1
+    Not(in=in[1], out=out[1]); //Not bit array 2
+    Not(in=in[2], out=out[2]); //Not bit array 3
+    Not(in=in[3], out=out[3]); //Not bit array 4
+    Not(in=in[4], out=out[4]); //Not bit array 5
+    Not(in=in[5], out=out[5]); //Not bit arry 6
+    Not(in=in[6], out=out[6]); //Not bit array 7
+    Not(in=in[7], out=out[7]); //Not bit array 8
+    Not(in=in[8], out=out[8]); //Not bit array 9
+    Not(in=in[9], out=out[9]); // Not bit array 10
+    Not(in=in[10], out=out[10]); //Not bit array 11
+    Not(in=in[11], out=out[11]); //Not bit array 12
+    Not(in=in[12], out=out[12]); //Not bit array 13
+    Not(in=in[13], out=out[13]); //Not bit array 14
+    Not(in=in[14], out=out[14]); //Not bit array 15
+    Not(in=in[15], out=out[15]); //Not bit array 16
+}
